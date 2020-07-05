@@ -6,7 +6,6 @@ import android.graphics.Point
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
-import com.google.android.material.circularreveal.CircularRevealCompat
 import com.solarexsoft.custombubblerevealanimation.BubbleRevealCompat
 import com.solarexsoft.custombubblerevealanimation.BubbleRevealFrameLayout
 import com.solarexsoft.custombubblerevealanimation.BubbleRevealInfo
@@ -23,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         tv.setOnClickListener {
             val bubbleRevealInfo = BubbleRevealInfo(
                 (tv.y + tv.height/2).toInt(),
-                point.y * 3 / 4,
+                point.y,
                 point.x,
                 point.x.toFloat(),
                 tv.y,
@@ -32,7 +31,9 @@ class MainActivity : AppCompatActivity() {
                 (point.x - tv.width/2).toFloat(),
                 (point.x - tv.width).toFloat()
             )
+            frameLayout.setBubbleRevealInfo(bubbleRevealInfo)
             val animator = BubbleRevealCompat.createBubbleReveal(frameLayout, bubbleRevealInfo)
+            animator.duration = 3000
             val animatorListener = BubbleRevealCompat.createBubbleRevealListener(frameLayout)
             animator.addListener(animatorListener)
             animator.start()

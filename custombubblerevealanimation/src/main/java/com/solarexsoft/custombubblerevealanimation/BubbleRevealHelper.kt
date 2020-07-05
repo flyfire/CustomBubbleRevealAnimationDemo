@@ -2,8 +2,9 @@ package com.solarexsoft.custombubblerevealanimation
 
 import android.animation.TypeEvaluator
 import android.graphics.*
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
+import android.nfc.Tag
+import android.os.Build.*
+import android.util.Log
 import android.view.View
 
 /**
@@ -24,14 +25,6 @@ data class BubbleRevealInfo(
     var curCenterX: Float = 0.0f,
     var curLeftX: Float = 0.0f
 ) {
-    fun set(endHeight: Int, curTopX: Float, curTopY: Float, curBottomX: Float, curBottomY: Float, curCenterX: Float, curLeftX: Float) {
-        this.curTopX = curTopX
-        this.curTopY = curTopY.coerceAtLeast(0.0f)
-        this.curBottomX = curBottomX
-        this.curBottomY = curBottomY.coerceAtMost(endHeight.toFloat())
-        this.curCenterX = curCenterX.coerceAtLeast(0.0f)
-        this.curLeftX = curCenterX.coerceAtLeast(0.0f)
-    }
     constructor(revealInfo: BubbleRevealInfo) : this(revealInfo.startY, revealInfo.endHeight, revealInfo.endWidth,
         revealInfo.curTopX, revealInfo.curTopY,
         revealInfo.curBottomX, revealInfo.curBottomY,
@@ -43,7 +36,7 @@ data class BubbleRevealInfo(
             revealInfo.curCenterX, revealInfo.curLeftX)
     }
 
-    private fun set(
+    fun set(
         startY: Int,
         endHeight: Int,
         endWidth: Int,
@@ -67,6 +60,7 @@ data class BubbleRevealInfo(
 }
 class BubbleRevealEvaluator : TypeEvaluator<BubbleRevealInfo> {
     companion object {
+        const val TAG = "BubbleRevealEvaluator"
         val BUBBLE_REVEAL = BubbleRevealEvaluator()
     }
     private val bubbleRevealInfo: BubbleRevealInfo = BubbleRevealInfo()
@@ -76,15 +70,17 @@ class BubbleRevealEvaluator : TypeEvaluator<BubbleRevealInfo> {
         endValue: BubbleRevealInfo?
     ): BubbleRevealInfo {
         startValue?.let {
-            val nowWidth = fraction * it.endWidth + (it.endWidth - it.curLeftX)
-            val nowHeight = fraction * it.endHeight + (it.startY - it.curTopY) * 2
+            val startWidth = it.endWidth - it.curLeftX
+            val startHeight = it.curBottomY - it.curTopY
+            val nowWidth = fraction * (it.endWidth - startWidth ) * 3 + startWidth
+            val nowHeight = fraction * (it.endHeight - startHeight) * 3 + startHeight
             val curTopX = it.endWidth.toFloat()
             val curTopY = it.startY - (nowHeight/2).toFloat()
             val curBottomX = it.endWidth.toFloat()
             val curBottomY = it.startY + (nowHeight/2).toFloat()
-            val curCenterX = it.endWidth - (nowWidth/2).toFloat()
+            val curCenterX = it.endWidth - (nowWidth/4).toFloat()
             val curLeftX = it.endWidth - nowWidth.toFloat()
-            bubbleRevealInfo.set(it.endHeight, curTopX, curTopY, curBottomX, curBottomY, curCenterX, curLeftX)
+            bubbleRevealInfo.set(it.startY, it.endHeight, it.endWidth, curTopX, curTopY, curBottomX, curBottomY, curCenterX, curLeftX)
         }
         return bubbleRevealInfo
     }
@@ -99,6 +95,7 @@ class BubbleRevealHelper(private val delegate: Delegate, private val bubbleRevea
         fun actualIsOpaque(): Boolean
     }
     companion object {
+        const val TAG = "BubbleRevealHelper"
         const val BITMAP_SHADER = 0
         const val CLIP_PATH = 1
         val STRATEGY = if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR2) CLIP_PATH else BITMAP_SHADER
@@ -157,6 +154,7 @@ class BubbleRevealHelper(private val delegate: Delegate, private val bubbleRevea
         if (STRATEGY == CLIP_PATH) {
             bubbleRevealPath.rewind()
             bubbleRevealInfo?.let {
+                Log.d(TAG, "$it")
                 bubbleRevealPath.moveTo(it.curTopX, it.curTopY)
                 bubbleRevealPath.lineTo(it.curCenterX, it.curTopY)
                 bubbleRevealPath.cubicTo(it.curLeftX, it.curTopY, it.curLeftX, it.curBottomY, it.curCenterX, it.curBottomY)
@@ -187,6 +185,7 @@ class BubbleRevealHelper(private val delegate: Delegate, private val bubbleRevea
 
     private fun shouldDrawBubbleReveal(): Boolean {
         val invalidateBubbleRevealInfo = bubbleRevealInfo == null
+        Log.d(TAG, "shouldDraw = $invalidateBubbleRevealInfo")
         return if (STRATEGY == BITMAP_SHADER) {
             !invalidateBubbleRevealInfo && hasBubbleRevealCache
         } else {
