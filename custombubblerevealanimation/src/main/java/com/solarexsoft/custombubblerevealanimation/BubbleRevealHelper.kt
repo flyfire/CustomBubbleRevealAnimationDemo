@@ -2,7 +2,6 @@ package com.solarexsoft.custombubblerevealanimation
 
 import android.animation.TypeEvaluator
 import android.graphics.*
-import android.nfc.Tag
 import android.os.Build.*
 import android.util.Log
 import android.view.View
@@ -16,8 +15,8 @@ import android.view.View
  */
 data class BubbleRevealInfo(
     var startY: Int = 0,
-    var endHeight: Int = 0,
-    var endWidth: Int = 0,
+    var curHeight: Int = 0,
+    var curWidth: Int = 0,
     var curTopX: Float = 0.0f,
     var curTopY: Float = 0.0f,
     var curBottomX: Float = 0.0f,
@@ -25,12 +24,12 @@ data class BubbleRevealInfo(
     var curCenterX: Float = 0.0f,
     var curLeftX: Float = 0.0f
 ) {
-    constructor(revealInfo: BubbleRevealInfo) : this(revealInfo.startY, revealInfo.endHeight, revealInfo.endWidth,
+    constructor(revealInfo: BubbleRevealInfo) : this(revealInfo.startY, revealInfo.curHeight, revealInfo.curWidth,
         revealInfo.curTopX, revealInfo.curTopY,
         revealInfo.curBottomX, revealInfo.curBottomY,
         revealInfo.curCenterX, revealInfo.curLeftX)
     fun set(revealInfo: BubbleRevealInfo) {
-        set(revealInfo.startY, revealInfo.endHeight, revealInfo.endWidth,
+        set(revealInfo.startY, revealInfo.curHeight, revealInfo.curWidth,
             revealInfo.curTopX, revealInfo.curTopY,
             revealInfo.curBottomX, revealInfo.curBottomY,
             revealInfo.curCenterX, revealInfo.curLeftX)
@@ -38,8 +37,8 @@ data class BubbleRevealInfo(
 
     fun set(
         startY: Int,
-        endHeight: Int,
-        endWidth: Int,
+        curHeight: Int,
+        curWidth: Int,
         curTopX: Float,
         curTopY: Float,
         curBottomX: Float,
@@ -48,8 +47,8 @@ data class BubbleRevealInfo(
         curLeftX: Float
     ) {
         this.startY = startY
-        this.endHeight = endHeight
-        this.endWidth = endWidth
+        this.curHeight = curHeight
+        this.curWidth = curWidth
         this.curTopX = curTopX
         this.curTopY = curTopY
         this.curBottomX = curBottomX
@@ -69,18 +68,28 @@ class BubbleRevealEvaluator : TypeEvaluator<BubbleRevealInfo> {
         startValue: BubbleRevealInfo?,
         endValue: BubbleRevealInfo?
     ): BubbleRevealInfo {
-        startValue?.let {
-            val startWidth = it.endWidth - it.curLeftX
-            val startHeight = it.curBottomY - it.curTopY
-            val nowWidth = fraction * (it.endWidth - startWidth ) * 3 + startWidth
-            val nowHeight = fraction * (it.endHeight - startHeight) * 3 + startHeight
-            val curTopX = it.endWidth.toFloat()
-            val curTopY = it.startY - (nowHeight/2).toFloat()
-            val curBottomX = it.endWidth.toFloat()
-            val curBottomY = it.startY + (nowHeight/2).toFloat()
-            val curCenterX = it.endWidth - (nowWidth/4).toFloat()
-            val curLeftX = it.endWidth - nowWidth.toFloat()
-            bubbleRevealInfo.set(it.startY, it.endHeight, it.endWidth, curTopX, curTopY, curBottomX, curBottomY, curCenterX, curLeftX)
+        startValue?.let {start ->
+            endValue?.let { end ->
+                val nowWidth = (end.curWidth - start.curWidth) * fraction + start.curWidth
+                val nowHeight = (end.curHeight - start.curHeight) * fraction + start.curHeight
+                val curTopX = start.curTopX
+                val curTopY = start.startY - (nowHeight/2).toFloat()
+                val curBottomX = start.curBottomX
+                val curBottomY = start.startY + (nowHeight/2).toFloat()
+                val curCenterX = start.curTopX - (nowWidth/4).toFloat()
+                val curLeftX = start.curTopX - nowWidth.toFloat()
+                bubbleRevealInfo.set(
+                    start.startY,
+                    nowHeight.toInt(),
+                    nowWidth.toInt(),
+                    curTopX,
+                    curTopY,
+                    curBottomX,
+                    curBottomY,
+                    curCenterX,
+                    curLeftX
+                )
+            }
         }
         return bubbleRevealInfo
     }

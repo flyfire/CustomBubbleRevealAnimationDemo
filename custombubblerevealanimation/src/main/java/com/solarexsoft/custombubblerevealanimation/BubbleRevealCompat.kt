@@ -26,12 +26,13 @@ class BubbleRevealCompat private constructor() {
                 }
             }
         }
-        fun createBubbleReveal(view: BubbleRevealWidget, bubbleRevealInfo: BubbleRevealInfo): Animator {
+        fun createBubbleReveal(view: BubbleRevealWidget, startInfo: BubbleRevealInfo, endInfo: BubbleRevealInfo): Animator {
             return ObjectAnimator.ofObject(
                 view,
                 BubbleRevealProperty.BUBBLE_REVEAL,
                 BubbleRevealEvaluator.BUBBLE_REVEAL,
-                bubbleRevealInfo
+                startInfo,
+                endInfo
             )
         }
     }
