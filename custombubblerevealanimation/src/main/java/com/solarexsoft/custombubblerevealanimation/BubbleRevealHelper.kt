@@ -72,9 +72,7 @@ class BubbleRevealEvaluator : TypeEvaluator<BubbleRevealInfo> {
             endValue?.let { end ->
                 val nowWidth = (end.curWidth - start.curWidth) * fraction + start.curWidth
                 val nowHeight = (end.curHeight - start.curHeight) * fraction + start.curHeight
-                val curTopX = start.curTopX
                 val curTopY = start.startY - (nowHeight/2).toFloat()
-                val curBottomX = start.curBottomX
                 val curBottomY = start.startY + (nowHeight/2).toFloat()
                 val curCenterX = start.curTopX - (nowWidth/4).toFloat()
                 val curLeftX = start.curTopX - nowWidth.toFloat()
@@ -82,9 +80,9 @@ class BubbleRevealEvaluator : TypeEvaluator<BubbleRevealInfo> {
                     start.startY,
                     nowHeight.toInt(),
                     nowWidth.toInt(),
-                    curTopX,
+                    start.curTopX,
                     curTopY,
-                    curBottomX,
+                    start.curBottomX,
                     curBottomY,
                     curCenterX,
                     curLeftX
@@ -194,7 +192,7 @@ class BubbleRevealHelper(private val delegate: Delegate, private val bubbleRevea
 
     private fun shouldDrawBubbleReveal(): Boolean {
         val invalidateBubbleRevealInfo = bubbleRevealInfo == null
-        Log.d(TAG, "shouldDraw = $invalidateBubbleRevealInfo")
+        Log.d(TAG, "invalidateInfo = $invalidateBubbleRevealInfo")
         return if (STRATEGY == BITMAP_SHADER) {
             !invalidateBubbleRevealInfo && hasBubbleRevealCache
         } else {
