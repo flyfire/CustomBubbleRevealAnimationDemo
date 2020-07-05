@@ -21,34 +21,36 @@ class MainActivity : AppCompatActivity() {
         val tv = findViewById<TextView>(R.id.tv)
         val point = Point()
         windowManager.defaultDisplay.getSize(point)
-        val startInfo = BubbleRevealInfo(
-            (tv.y + tv.height/2).toInt(),
-            tv.height,
-            tv.width,
-            point.x.toFloat(),
-            tv.y,
-            point.x.toFloat(),
-            (tv.y + tv.height).toFloat(),
-            (point.x - tv.width/4).toFloat(),
-            (point.x - tv.width).toFloat()
-        )
-        val endInfo = BubbleRevealInfo(
-            (tv.y + tv.height/2).toInt(),
-            point.y * 2,
-            point.x * 2,
-            point.x.toFloat(),
-            (tv.y + tv.height/2 - point.y).toFloat(),
-            point.x.toFloat(),
-            (point.x - (point.x * 2/4)).toFloat(),
-            (point.x - (point.x * 2)).toFloat()
-        )
+
         val animatorListener = BubbleRevealCompat.createBubbleRevealListener(frameLayout)
         tv.setOnClickListener{
+            val startInfo = BubbleRevealInfo(
+                (tv.y + tv.height/2).toInt(),
+                tv.height,
+                tv.width,
+                point.x.toFloat(),
+                tv.y,
+                point.x.toFloat(),
+                (tv.y + tv.height).toFloat(),
+                (point.x - tv.width/4).toFloat(),
+                (point.x - tv.width).toFloat()
+            )
+            val endInfo = BubbleRevealInfo(
+                (tv.y + tv.height/2).toInt(),
+                point.y * 2,
+                point.x * 2,
+                point.x.toFloat(),
+                (tv.y + tv.height/2 - point.y).toFloat(),
+                point.x.toFloat(),
+                (point.x - (point.x * 2/4)).toFloat(),
+                (point.x - (point.x * 2)).toFloat()
+            )
             if (openOrClose) {
                 frameLayout.setBubbleRevealInfo(startInfo)
                 animator?.cancel()
                 animator = BubbleRevealCompat.createBubbleReveal(frameLayout, startInfo, endInfo)
                 animator?.addListener(animatorListener)
+                animator?.duration = 2000
                 frameLayout.visibility = View.VISIBLE
                 animator?.start()
             } else {
@@ -61,8 +63,10 @@ class MainActivity : AppCompatActivity() {
                         frameLayout.visibility = View.GONE
                     }
                 })
+                animator?.duration = 2000
                 animator?.start()
             }
+            openOrClose = !openOrClose
         }
     }
 }
