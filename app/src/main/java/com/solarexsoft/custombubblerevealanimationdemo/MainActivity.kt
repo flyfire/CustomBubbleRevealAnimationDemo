@@ -2,6 +2,7 @@ package com.solarexsoft.custombubblerevealanimationdemo
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.google.android.material.circularreveal.CircularRevealCompat
 
 class MainActivity : AppCompatActivity() {
 

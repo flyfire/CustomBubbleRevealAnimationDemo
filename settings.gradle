@@ -1,2 +1,3 @@
 rootProject.name='CustomBubbleRevealAnimationDemo'
 include ':app'
+include ':custombubblerevealanimation'
